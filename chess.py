@@ -1,4 +1,5 @@
-n = 9
+import sys
+n = int(sys.argv[1])
 
 def put_rook(attack_board, r, c):
     # up
