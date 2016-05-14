@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
             {
                 if (r != 0 && (perms[index] == perms[i] + r || perms[index] == perms[i] - r))
                 {
-                    break;
+                    goto end_of_nested_loops;
                 }
                 index++;
                 if (index == n)
@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
                 }
             }
         }
+        end_of_nested_loops:
         if (ans == n)
         {
             global_ans++;

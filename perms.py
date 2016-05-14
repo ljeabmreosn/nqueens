@@ -17,4 +17,5 @@ while a != None:
     a = next(perms, None)
     if ans == n:
         global_ans += 1
+        print(a)
 print(global_ans)
