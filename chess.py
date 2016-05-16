@@ -100,9 +100,9 @@ for i in a:
             if attack_board[x][y] == 0:
                 noo += 1
     if noo >= n:
-        display(piece_board)
-        display(attack_board)
-        dummy = input()
+        # display(piece_board)
+        # display(attack_board)
+        # dummy = input()
         ans += 1
 print(ans)
     

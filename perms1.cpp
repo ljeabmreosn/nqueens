@@ -1,6 +1,9 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
+#include <stdio.h>
+
+
 
 using namespace std;
 
@@ -15,8 +18,6 @@ int main(int argc, char* argv[])
     int global_ans = 0;
     do 
     {
-        // cout << perms[0] << ' ' << perms[1] << ' ' << perms[2] << '\n';
-        int ans = 0;
         for (int i = 0; i < n; i++)
         {
             int index = 0;
@@ -27,17 +28,16 @@ int main(int argc, char* argv[])
                     goto end_of_nested_loops;
                 }
                 index++;
-                if (index == n)
-                {
-                    ans++;
-                }
             }
         }
-        end_of_nested_loops:
-        if (ans == n)
+        global_ans++;
+        for (int j = 0; j < n; j++) 
         {
-            global_ans++;
+            cout << perms[j] << " ";
         }
+        cout << endl;
+        end_of_nested_loops:
+        int k = 0;
     } while (next_permutation(perms,perms+sizeof(perms)/sizeof(perms[0])));
     cout << global_ans;
     return 0;
