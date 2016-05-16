@@ -1,4 +1,5 @@
-n = 9
+import sys
+n = int(sys.argv[1])
 
 def put_rook(attack_board, r, c):
     # up
@@ -101,6 +102,7 @@ for i in a:
     if noo >= n:
         # display(piece_board)
         # display(attack_board)
+        # dummy = input()
         ans += 1
 print(ans)
     
