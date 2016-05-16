@@ -31,11 +31,11 @@ int main(int argc, char* argv[])
             }
         }
         global_ans++;
-        for (int j = 0; j < n; j++) 
-        {
-            cout << perms[j] << " ";
-        }
-        cout << endl;
+        // for (int j = 0; j < n; j++) 
+        // {
+        //     cout << perms[j] << " ";
+        // }
+        // cout << endl;
         end_of_nested_loops:
         int k = 0;
     } while (next_permutation(perms,perms+sizeof(perms)/sizeof(perms[0])));
