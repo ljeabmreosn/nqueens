@@ -7,7 +7,7 @@ import numpy as np
 from colorama import init, Fore
 import copy
 
-n = 9
+n = 8
 
 def pp_board(board):
     '''nice printing of the board'''
@@ -44,10 +44,12 @@ def main():
     '''test functions'''
     init()
     board = np.zeros((n, n), dtype=bool)
-    print(perm(board, level=0))
+    print(perm_op1(board, level=0))
+    #print(perm_all())
 
-def perm(board, level=0, count=0):
+def perm_op1(board, level=0):
     '''basic permutation with optimization'''
+    count = 0
     for i in range(len(board)):
         board_temp = board.copy()
         if not board_temp[i][level]:
@@ -55,11 +57,29 @@ def perm(board, level=0, count=0):
             #print()
             #pp_board(board_temp)
             if level < n-1:
-                count += perm(board_temp, level=level+1)
+                count += perm_op1(board_temp, level=level+1)
             else:
                 #print()
                 #pp_board(board_temp)
                 return count + 1
+    return count
+
+def perm_all():
+    from itertools import permutations
+    perms = permutations(range(n))
+    count = 0
+    for perm in perms:
+        board = np.zeros((n, n), dtype=bool)
+        for x, y in enumerate(perm):
+            #print('{} {}'.format(x, y))
+            if not board[y][x]:
+                put_queen(board, y, x)
+                if x == n-1:
+                    #print()
+                    #pp_board(board)
+                    count += 1
+            else:
+                break
     return count
 
 
