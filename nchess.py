@@ -3,17 +3,17 @@
 '''
 nqueens with numba and numpy
 '''
+from timeit import timeit
+from sys import argv
 import numpy as np
 from colorama import init, Fore
-import copy
-from sys import import argv
 
 # n = 8
 
 def pp_board(board):
     '''nice printing of the board'''
     print(str(board).replace('[', '').replace(']', '').replace('True', Fore.GREEN + '██')
-          .replace('False', Fore.RED + '██').replace(' ', ''))
+          .replace('False', Fore.RED + '██').replace(' ', '')+'\n'+Fore.RESET)
 
 def put_queen(board, y, x, n):
     '''uses some numpy functions to put a queen on the board'''
@@ -48,15 +48,22 @@ def main():
     # put_queen(board, 2, 3)
     # pp_board(board)
     n = int(argv[1])
-    global print_board = bool(int(argv[2]))
-    functions = [perm_all, perm_david, perm_op1]
-    if len(argv) > 3:
+    global print_board
+    if len(argv) > 2:
+        print_board = bool(int(argv[2]))
+    else:
+        print_board = True
 
-    print('david')
-    print(perms(n))
-    print('brian')
-    print(perm_op1(n))
-    #print(perm_all())
+    functions = [perm_all, perm_david, perm_op1]
+    if len(argv) >  3:
+        for func in argv[3:]:
+            print()
+            funcstr = str(functions[int(func)]).split(' ')[1]
+            print(funcstr)
+            print(timeit(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr, number=10))
+            print(functions[int(func)](n))
+    else:
+        print(functions[-1](n))
 
 def perm_david(n):
     s = 0
@@ -73,7 +80,6 @@ def perm_david(n):
                 put_queen(board, i, p[i]-1, n)
             if print_board:
                 pp_board(board)
-                print('----------------------------')
             s += 1
         else:
             for x in range(len(a)):
@@ -95,13 +101,12 @@ def perm_op1(n, board=None, level=0):
             if level < n-1:
                 count += perm_op1(n, board_temp, level=level+1)
             else:
-
-                #print()
-                #pp_board(board_temp)
+                if print_board:
+                    pp_board(board_temp)
                 return count + 1
     return count
 
-def perm_all():
+def perm_all(n):
     from itertools import permutations
     perms = permutations(range(n))
     count = 0
@@ -110,10 +115,10 @@ def perm_all():
         for x, y in enumerate(perm):
             #print('{} {}'.format(x, y))
             if not board[y][x]:
-                put_queen(board, y, x)
+                put_queen(board, y, x, n)
                 if x == n-1:
-                    #print()
-                    #pp_board(board)
+                    if print_board:
+                        pp_board(board)
                     count += 1
             else:
                 break
