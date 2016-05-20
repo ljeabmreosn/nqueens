@@ -53,8 +53,8 @@ def perms(n):
             board = np.zeros((n, n), dtype=bool)
             for i in range(n):
                 put_queen(board, i, p[i]-1, n)
-            pp_board(board)
-            print('----------------------------')
+            #pp_board(board)
+            #print('----------------------------')
             s += 1
         else:
             for x in range(len(a)):
@@ -70,22 +70,26 @@ def main():
     # put_queen(board, 2, 3)
     # pp_board(board)
     while True:
-        print(perms(int(input())))
-    board = np.zeros((n, n), dtype=bool)
-    print(perm_op1(board, level=0))
+        n = int(input())
+        print('david')
+        print(perms(n))
+        print('brian')
+        print(perm_op1(n, level=0))
     #print(perm_all())
 
-def perm_op1(board, level=0):
+def perm_op1(n, board=None, level=0):
     '''basic permutation with optimization'''
     count = 0
-    for i in range(len(board)):
+    if board is None:
+        board = np.zeros((n, n), dtype=bool)
+    for i in range(n):
         board_temp = board.copy()
         if not board_temp[i][level]:
-            put_queen(board_temp, i, level)
+            put_queen(board_temp, i, level, n)
             #print()
             #pp_board(board_temp)
             if level < n-1:
-                count += perm_op1(board_temp, level=level+1)
+                count += perm_op1(n, board_temp, level=level+1)
             else:
                 #print()
                 #pp_board(board_temp)
