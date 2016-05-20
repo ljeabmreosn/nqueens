@@ -3,12 +3,11 @@
 '''
 nqueens with numba and numpy
 '''
-from itertools import permutations
 import numpy as np
 from colorama import init, Fore
+import copy
 
-n = 8
-
+n = 9
 
 def pp_board(board):
     '''nice printing of the board'''
@@ -45,8 +44,24 @@ def main():
     '''test functions'''
     init()
     board = np.zeros((n, n), dtype=bool)
-    put_queen(board, 2, 3)
-    pp_board(board)
+    print(perm(board, level=0))
+
+def perm(board, level=0, count=0):
+    '''basic permutation with optimization'''
+    for i in range(len(board)):
+        board_temp = board.copy()
+        if not board_temp[i][level]:
+            put_queen(board_temp, i, level)
+            #print()
+            #pp_board(board_temp)
+            if level < n-1:
+                count += perm(board_temp, level=level+1)
+            else:
+                #print()
+                #pp_board(board_temp)
+                return count + 1
+    return count
+
 
 if __name__ == '__main__':
     main()
