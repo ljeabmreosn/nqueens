@@ -3,12 +3,11 @@
 '''
 nqueens with numba and numpy
 '''
-from itertools import permutations
 import numpy as np
 from colorama import init, Fore
+import copy
 
 # n = 8
-
 
 def pp_board(board):
     '''nice printing of the board'''
@@ -40,6 +39,7 @@ def put_queen(board, y, x, n):
     board[d1ar1, d1ar2] = np.ones(len1, dtype=bool)
     board[d2ar1, d2ar2] = np.ones(len2, dtype=bool)
     board[y][x] = False
+
 def perms(n):
     s = 0
     def cond(p, i):
@@ -71,6 +71,45 @@ def main():
     # pp_board(board)
     while True:
         print(perms(int(input())))
+    board = np.zeros((n, n), dtype=bool)
+    print(perm_op1(board, level=0))
+    #print(perm_all())
+
+def perm_op1(board, level=0):
+    '''basic permutation with optimization'''
+    count = 0
+    for i in range(len(board)):
+        board_temp = board.copy()
+        if not board_temp[i][level]:
+            put_queen(board_temp, i, level)
+            #print()
+            #pp_board(board_temp)
+            if level < n-1:
+                count += perm_op1(board_temp, level=level+1)
+            else:
+                #print()
+                #pp_board(board_temp)
+                return count + 1
+    return count
+
+def perm_all():
+    from itertools import permutations
+    perms = permutations(range(n))
+    count = 0
+    for perm in perms:
+        board = np.zeros((n, n), dtype=bool)
+        for x, y in enumerate(perm):
+            #print('{} {}'.format(x, y))
+            if not board[y][x]:
+                put_queen(board, y, x)
+                if x == n-1:
+                    #print()
+                    #pp_board(board)
+                    count += 1
+            else:
+                break
+    return count
+
 
 if __name__ == '__main__':
     main()
