@@ -6,6 +6,7 @@ nqueens with numba and numpy
 import numpy as np
 from colorama import init, Fore
 import copy
+from sys import import argv
 
 # n = 8
 
@@ -40,7 +41,24 @@ def put_queen(board, y, x, n):
     board[d2ar1, d2ar2] = np.ones(len2, dtype=bool)
     board[y][x] = False
 
-def perms(n):
+def main():
+    '''test functions'''
+    init()
+    # board = np.zeros((n, n), dtype=bool)
+    # put_queen(board, 2, 3)
+    # pp_board(board)
+    n = int(argv[1])
+    global print_board = bool(int(argv[2]))
+    functions = [perm_all, perm_david, perm_op1]
+    if len(argv) > 3:
+
+    print('david')
+    print(perms(n))
+    print('brian')
+    print(perm_op1(n))
+    #print(perm_all())
+
+def perm_david(n):
     s = 0
     def cond(p, i):
         for r in range(i):
@@ -53,8 +71,9 @@ def perms(n):
             board = np.zeros((n, n), dtype=bool)
             for i in range(n):
                 put_queen(board, i, p[i]-1, n)
-            #pp_board(board)
-            #print('----------------------------')
+            if print_board:
+                pp_board(board)
+                print('----------------------------')
             s += 1
         else:
             for x in range(len(a)):
@@ -63,19 +82,6 @@ def perms(n):
                     s += level(p, a[:x]+a[x+1:], i+1, n)
         return s
     return level([0]*n, list(range(1, n+1)), 0, n)
-def main():
-    '''test functions'''
-    init()
-    # board = np.zeros((n, n), dtype=bool)
-    # put_queen(board, 2, 3)
-    # pp_board(board)
-    while True:
-        n = int(input())
-        print('david')
-        print(perms(n))
-        print('brian')
-        print(perm_op1(n, level=0))
-    #print(perm_all())
 
 def perm_op1(n, board=None, level=0):
     '''basic permutation with optimization'''
@@ -86,11 +92,10 @@ def perm_op1(n, board=None, level=0):
         board_temp = board.copy()
         if not board_temp[i][level]:
             put_queen(board_temp, i, level, n)
-            #print()
-            #pp_board(board_temp)
             if level < n-1:
                 count += perm_op1(n, board_temp, level=level+1)
             else:
+
                 #print()
                 #pp_board(board_temp)
                 return count + 1
