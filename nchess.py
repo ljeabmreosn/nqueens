@@ -76,10 +76,10 @@ def perm_david(n):
         s = 0
         if i >= n:
             board = np.zeros((n, n), dtype=bool)
-            for i in range(n):
-                put_queen(board, i, p[i]-1, n)
             if print_board:
-                pp_board(board)
+                for i in range(n):
+                    put_queen(board, i, p[i]-1, n)
+                    pp_board(board)
             s += 1
         else:
             for x in range(len(a)):
