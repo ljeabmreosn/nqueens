@@ -8,7 +8,7 @@ from sys import argv
 import numpy as np
 from colorama import init, Fore
 
-PRINT_BOARD = True
+PRINT_BOARD = False
 
 def pp_board(board):
     '''nice printing of the board'''
@@ -56,12 +56,12 @@ def main():
         global PRINT_BOARD
         PRINT_BOARD = bool(int(argv[2]))
 
-    functions = [perm_all, perm_david, perm_op1, perm_op2]
+    functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3]
     if len(argv) > 3:
         repeats = int(argv[3])
     else:
         repeats = 100
-    if len(argv) >  4:
+    if len(argv) > 4:
         for func in argv[4:]:
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
@@ -69,7 +69,7 @@ def main():
             print(min(timeit.Timer(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr).repeat(repeat=repeats, number=1)))
             print(functions[int(func)](n))
     else:
-        print(functions[-1](n))
+        print(function(n) for function in functions[1:])
 
 def perm_david(n):
     s = 0
@@ -132,6 +132,25 @@ def perm_op2(n, board=None, level=0, possible=None):
                 return count + 1
     return count
 
+def perm_op3(n, board=None, level=0, possible=None):
+    '''permutation with tuple of possible values'''
+    count = 0
+    if board is None:
+        board = np.zeros((n, n), dtype=bool)
+    if possible is None:
+        possible = tuple(range(n))
+    for i in possible:
+        board_temp = board.copy()
+        if not board_temp[i][level]:
+            put_queen(board_temp, i, level, n)
+            possible_temp = tuple(val for val in possible if val != i)
+            if level < n-1:
+                count += perm_op3(n, board_temp, level=level+1, possible=possible_temp)
+            else:
+                if PRINT_BOARD:
+                    pp_board(board_temp)
+                return count + 1
+    return count
 
 def perm_all(n):
     from itertools import permutations
