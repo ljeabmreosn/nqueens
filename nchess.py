@@ -3,7 +3,7 @@
 '''
 nqueens with numba and numpy
 '''
-from timeit import timeit
+import timeit
 from sys import argv
 import numpy as np
 from colorama import init, Fore
@@ -47,18 +47,26 @@ def main():
     # board = np.zeros((n, n), dtype=bool)
     # put_queen(board, 2, 3)
     # pp_board(board)
-    n = int(argv[1])
+    if len(argv) > 1:
+        n = int(argv[1])
+    else:
+        print('nchess.py, usage:\nn print repeat functions')
+        return
     if len(argv) > 2:
         global PRINT_BOARD
         PRINT_BOARD = bool(int(argv[2]))
 
     functions = [perm_all, perm_david, perm_op1, perm_op2]
-    if len(argv) >  3:
-        for func in argv[3:]:
+    if len(argv) > 3:
+        repeats = int(argv[3])
+    else:
+        repeats = 100
+    if len(argv) >  4:
+        for func in argv[4:]:
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(timeit(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr, repeat=20))
+            print(min(timeit.Timer(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr).repeat(repeat=repeats, number=1)))
             print(functions[int(func)](n))
     else:
         print(functions[-1](n))
@@ -115,7 +123,6 @@ def perm_op2(n, board=None, level=0, possible=None):
         board_temp = board.copy()
         if not board_temp[i][level]:
             put_queen(board_temp, i, level, n)
-            #possible_temp = possible.copy().remove(i)
             possible_temp = [val for val in possible if val != i]
             if level < n-1:
                 count += perm_op2(n, board_temp, level=level+1, possible=possible_temp)
