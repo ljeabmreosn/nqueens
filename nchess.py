@@ -102,8 +102,8 @@ def perm_david(n):
     def level(p, a, i, n):
         s = 0
         if i >= n:
-            board = np.full((n, n), False, dtype=bool)
             if PRINT_BOARD:
+                board = np.full((n, n), False, dtype=bool)
                 for i in range(n):
                     put_queen(board, i, p[i]-1, n)
                     pp_board(board)
@@ -114,7 +114,7 @@ def perm_david(n):
                 if cond(p, i):
                     s += level(p, a[:x]+a[x+1:], i+1, n)
         return s
-    return level([0]*n, list(range(1, n+1)), 0, n)
+    return level([0]*n, tuple(range(1, n+1)), 0, n)
 
 def perm_op1(n, board=None, level=0):
     '''basic permutation with optimization'''
