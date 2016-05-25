@@ -63,7 +63,8 @@ def main():
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(min(timeit.repeat('print('+funcstr+'({}))'.format(n), setup='from __main__ import '+funcstr,
+            print(min(timeit.repeat('print('+funcstr+'({}))'.format(n),
+                                    setup='from __main__ import '+funcstr,
                                     repeat=repeats, number=1)))
     else:
         print(function(n) for function in functions[1:])
@@ -91,7 +92,6 @@ def prof():
                 cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
                                 filename='nchess.prof', sort='time')
                 cProfile.run(funcstr+'({})'.format(n), sort='time')
-                print(functions[int(func)](n))
         else:
             print(function(n) for function in functions[1:])
     except ValueError:
@@ -100,31 +100,6 @@ def prof():
         functions = [perm_op3]
         for func in functions:
             func(n)
-
-
-def perm_david(n):
-    s = 0
-    def cond(p, i):
-        for r in range(i):
-            if abs(p[i]-p[r]) == abs(i-r):
-                return False
-        return True
-    def level(p, a, i, n):
-        s = 0
-        if i >= n:
-            if PRINT_BOARD:
-                board = np.full((n, n), False, dtype=bool)
-                for i in range(n):
-                    put_queen(board, i, p[i]-1, n)
-                    pp_board(board)
-            s += 1
-        else:
-            for x in range(len(a)):
-                p[i] = a[x]
-                if cond(p, i):
-                    s += level(p, a[:x]+a[x+1:], i+1, n)
-        return s
-    return level([0]*n, tuple(range(1, n+1)), 0, n)
 
 def perm_op3(n):
     '''perm_david with more sane naming'''
