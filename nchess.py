@@ -94,12 +94,6 @@ def prof():
                 cProfile.run(funcstr+'({})'.format(n), sort='time')
         else:
             print(function(n) for function in functions[1:])
-    except ValueError:
-        n = 8
-        PRINT_BOARD = False
-        functions = [perm_op3]
-        for func in functions:
-            func(n)
 
 def perm_op3(n):
     '''perm_david with more sane naming'''
