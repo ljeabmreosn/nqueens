@@ -4,7 +4,6 @@
 nqueens with numba and numpy
 '''
 import timeit
-import cProfile
 from sys import argv
 import numpy as np
 from colorama import init, Fore
@@ -18,8 +17,8 @@ def pp_board(board):
 
 def put_queen(board, y, x, n):
     '''uses some numpy functions to put a queen on the board'''
-    board[y] = np.full(n, True, dtype=bool)
-    board[:, x] = np.full(n, True, dtype=bool)
+    #board[y] = np.full(n, True, dtype=bool)
+    #board[:, x] = np.full(n, True, dtype=bool)
     off1 = y - x
     off2 = n - y - x
     if off1 > 0:
@@ -64,33 +63,45 @@ def main():
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(min(timeit.repeat(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr, repeat=repeats, number=1)))
+            print(min(timeit.repeat(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr,
+                                    repeat=repeats, number=1)))
             print(functions[int(func)](n))
     else:
         print(function(n) for function in functions[1:])
 
 def prof():
     '''alternate main using cProfile instead of timeit'''
+    import cProfile
     init()
-    if len(argv) > 1:
-        n = int(argv[1])
-    else:
-        print('nchess.py, usage:\nn print repeat functions')
-        return
-    if len(argv) > 2:
-        global PRINT_BOARD
-        PRINT_BOARD = bool(int(argv[2]))
+    try:
+        if len(argv) > 1:
+            n = int(argv[1])
+        else:
+            print('nchess.py, usage:\nn print repeat functions')
+            return
+        if len(argv) > 2:
+            global PRINT_BOARD
+            PRINT_BOARD = bool(int(argv[2]))
 
-    functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3]
-    if len(argv) > 4:
-        for func in argv[4:]:
-            print()
-            funcstr = str(functions[int(func)]).split(' ')[1]
-            print(funcstr)
-            cProfile.runctx(funcstr + '({})'.format(n), globals(), locals(), sort='time')
-            print(functions[int(func)](n))
-    else:
-        print(function(n) for function in functions[1:])
+        functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3]
+        if len(argv) > 4:
+            for func in argv[4:]:
+                print()
+                funcstr = str(functions[int(func)]).split(' ')[1]
+                print(funcstr)
+                cProfile.runctx(funcstr + '({})'.format(n), globals(), locals(),
+                                filename='nchess.prof', sort='time')
+                cProfile.run(funcstr+'({})'.format(n), sort='time')
+                print(functions[int(func)](n))
+        else:
+            print(function(n) for function in functions[1:])
+    except ValueError:
+        n = 8
+        PRINT_BOARD = False
+        functions = [perm_op3]
+        for func in functions:
+            func(n)
+
 
 def perm_david(n):
     s = 0
@@ -114,6 +125,32 @@ def perm_david(n):
                 if cond(p, i):
                     s += level(p, a[:x]+a[x+1:], i+1, n)
         return s
+    return level([0]*n, tuple(range(1, n+1)), 0, n)
+
+def perm_op3(n):
+    '''perm_david with more sane naming'''
+    def cond(queens, i):
+        '''checks board validity'''
+        for level in range(i):
+            if abs(queens[i]-queens[level]) == abs(i-level):
+                return False
+        return True
+    def level(queens, possible, i, n):
+        '''places queens'''
+        count = 0
+        if i >= n:
+            if PRINT_BOARD:
+                board = np.full((n, n), False, dtype=bool)
+                for i in range(n):
+                    put_queen(board, i, queens[i]-1, n)
+                    pp_board(board)
+            count += 1
+        else:
+            for index, val in enumerate(possible):
+                queens[i] = val
+                if cond(queens, i):
+                    count += level(queens, possible[:index]+possible[index+1:], i+1, n)
+        return count
     return level([0]*n, tuple(range(1, n+1)), 0, n)
 
 def perm_op1(n, board=None, level=0):
@@ -153,26 +190,6 @@ def perm_op2(n, board=None, level=0, possible=None):
                 return count + 1
     return count
 
-def perm_op3(n, board=None, level=0, possible=None):
-    '''permutation with tuple of possible values'''
-    count = 0
-    if board is None:
-        board = np.full((n, n), False, dtype=bool)
-    if possible is None:
-        possible = np.arange(n)
-    for index, i in enumerate(possible):
-        board_temp = board.copy()
-        if not board_temp[i][level]:
-            put_queen(board_temp, i, level, n)
-            possible_new = np.delete(possible, index)
-            if level < n-1:
-                count += perm_op3(n, board_temp, level=level+1, possible=possible_new)
-            else:
-                if PRINT_BOARD:
-                    pp_board(board_temp)
-                return count + 1
-    return count
-
 def perm_all(n):
     '''terrible function, tests every possible combination'''
     from itertools import permutations
@@ -194,5 +211,6 @@ def perm_all(n):
 
 
 if __name__ == '__main__':
+    #main()
     prof()
 

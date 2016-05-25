@@ -93,3 +93,6 @@ ENV/
 
 # visual studio
 .vscode
+
+# profile
+*.prof
