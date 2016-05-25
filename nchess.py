@@ -53,7 +53,7 @@ def main():
         global PRINT_BOARD
         PRINT_BOARD = bool(int(argv[2]))
 
-    functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3]
+    functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3, perm_op4]
     if len(argv) > 3:
         repeats = int(argv[3])
     else:
@@ -63,9 +63,8 @@ def main():
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(min(timeit.repeat(funcstr+'({})'.format(n), setup='from __main__ import '+funcstr,
+            print(min(timeit.repeat('print('+funcstr+'({}))'.format(n), setup='from __main__ import '+funcstr,
                                     repeat=repeats, number=1)))
-            print(functions[int(func)](n))
     else:
         print(function(n) for function in functions[1:])
 
@@ -83,13 +82,13 @@ def prof():
             global PRINT_BOARD
             PRINT_BOARD = bool(int(argv[2]))
 
-        functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3]
+        functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3, perm_op4]
         if len(argv) > 4:
             for func in argv[4:]:
                 print()
                 funcstr = str(functions[int(func)]).split(' ')[1]
                 print(funcstr)
-                cProfile.runctx(funcstr + '({})'.format(n), globals(), locals(),
+                cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
                                 filename='nchess.prof', sort='time')
                 cProfile.run(funcstr+'({})'.format(n), sort='time')
                 print(functions[int(func)](n))
@@ -133,6 +132,38 @@ def perm_op3(n):
         '''checks board validity'''
         for level in range(i):
             if abs(queens[i]-queens[level]) == abs(i-level):
+                return False
+        return True
+    def level(queens, possible, i, n):
+        '''places queens'''
+        count = 0
+        if i >= n:
+            if PRINT_BOARD:
+                board = np.full((n, n), False, dtype=bool)
+                for i in range(n):
+                    put_queen(board, i, queens[i]-1, n)
+                    pp_board(board)
+            count += 1
+        else:
+            for index, val in enumerate(possible):
+                queens[i] = val
+                if cond(queens, i):
+                    count += level(queens, possible[:index]+possible[index+1:], i+1, n)
+        return count
+    return level([0]*n, tuple(range(1, n+1)), 0, n)
+
+def perm_op4(n):
+    '''perm_david with more sane naming'''
+    def cond(queens, i):
+        '''checks board validity'''
+        to_abs = np.empty((i, 2), np.uint8)
+        for level in range(i):
+            to_abs[level][0] = queens[i] - queens[level]
+            to_abs[level][1] = i - level
+        to_comp = np.abs(to_abs)
+        print(to_comp)
+        for level in to_comp:
+            if level[0] != level[1]:
                 return False
         return True
     def level(queens, possible, i, n):
