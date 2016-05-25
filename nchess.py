@@ -73,27 +73,26 @@ def prof():
     '''alternate main using cProfile instead of timeit'''
     import cProfile
     init()
-    try:
-        if len(argv) > 1:
-            n = int(argv[1])
-        else:
-            print('nchess.py, usage:\nn print repeat functions')
-            return
-        if len(argv) > 2:
-            global PRINT_BOARD
-            PRINT_BOARD = bool(int(argv[2]))
+    if len(argv) > 1:
+        n = int(argv[1])
+    else:
+        print('nchess.py, usage:\nn print repeat functions')
+        return
+    if len(argv) > 2:
+        global PRINT_BOARD
+        PRINT_BOARD = bool(int(argv[2]))
 
-        functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
-        if len(argv) > 4:
-            for func in argv[4:]:
-                print()
-                funcstr = str(functions[int(func)]).split(' ')[1]
-                print(funcstr)
-                #cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
-                #                filename='nchess.prof', sort='time')
-                cProfile.run(funcstr+'({})'.format(n), sort='time')
-        else:
-            print(function(n) for function in functions[1:])
+    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
+    if len(argv) > 4:
+        for func in argv[4:]:
+            print()
+            funcstr = str(functions[int(func)]).split(' ')[1]
+            print(funcstr)
+            #cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
+            #                filename='nchess.prof', sort='time')
+            cProfile.run(funcstr+'({})'.format(n), sort='time')
+    else:
+        print(function(n) for function in functions[1:])
 
 def perm_op3(n):
     '''perm_david with more sane naming'''
