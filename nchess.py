@@ -89,8 +89,8 @@ def prof():
                 print()
                 funcstr = str(functions[int(func)]).split(' ')[1]
                 print(funcstr)
-                cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
-                                filename='nchess.prof', sort='time')
+                #cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
+                #                filename='nchess.prof', sort='time')
                 cProfile.run(funcstr+'({})'.format(n), sort='time')
         else:
             print(function(n) for function in functions[1:])
