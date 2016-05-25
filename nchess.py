@@ -53,7 +53,7 @@ def main():
         global PRINT_BOARD
         PRINT_BOARD = bool(int(argv[2]))
 
-    functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3, perm_op4]
+    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
     if len(argv) > 3:
         repeats = int(argv[3])
     else:
@@ -83,7 +83,7 @@ def prof():
             global PRINT_BOARD
             PRINT_BOARD = bool(int(argv[2]))
 
-        functions = [perm_all, perm_david, perm_op1, perm_op2, perm_op3, perm_op4]
+        functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
         if len(argv) > 4:
             for func in argv[4:]:
                 print()
