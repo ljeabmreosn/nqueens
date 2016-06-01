@@ -7,6 +7,7 @@ import timeit
 from sys import argv
 import numpy as np
 from colorama import init, Fore
+from numba import jit
 
 PRINT_BOARD = False
 
@@ -63,7 +64,7 @@ def main():
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(min(timeit.repeat('print('+funcstr+'({}))'.format(n),
+            print(min(timeit.repeat('{}({})'.format(funcstr, n),
                                     setup='from __main__ import '+funcstr,
                                     repeat=repeats, number=1)))
     else:
@@ -90,7 +91,7 @@ def prof():
             print(funcstr)
             #cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
             #                filename='nchess.prof', sort='time')
-            cProfile.run(funcstr+'({})'.format(n), sort='time')
+            cProfile.run('print('+funcstr+'({}))'.format(n), sort='time')
     else:
         print(function(n) for function in functions[1:])
 
@@ -99,7 +100,7 @@ def perm_op3(n):
     def cond(queens, i):
         '''checks board validity'''
         for level in range(i):
-            if abs(queens[i]-queens[level]) == abs(i-level):
+            if abs(queens[i]-queens[level]) == i-level:
                 return False
         return True
     def level(queens, possible, i, n):
@@ -120,37 +121,31 @@ def perm_op3(n):
         return count
     return level([0]*n, tuple(range(1, n+1)), 0, n)
 
+@jit(nopython=True)
+def cond_op4(queens, i):
+    '''checks board validity'''
+    for level in range(i):
+        if abs(queens[i]-queens[level]) == i-level:
+            return False
+    return True
+
+#@jit(nopython=True)
+def level_op4(queens, possible, i, n):
+    '''places queens'''
+    count = 0
+    if i >= n:
+        count += 1
+    else:
+        for index, val in enumerate(possible):
+            queens[i] = val
+            if cond_op4(queens, i):
+                count += level_op4(queens, np.concatenate((possible[:index], possible[index+1:])),
+                                   i+1, n)
+    return count
+
 def perm_op4(n):
-    '''perm_david with more sane naming'''
-    def cond(queens, i):
-        '''checks board validity'''
-        to_abs = np.empty((i, 2), np.uint8)
-        for level in range(i):
-            to_abs[level][0] = queens[i] - queens[level]
-            to_abs[level][1] = i - level
-        to_comp = np.abs(to_abs)
-        print(to_comp)
-        for level in to_comp:
-            if level[0] != level[1]:
-                return False
-        return True
-    def level(queens, possible, i, n):
-        '''places queens'''
-        count = 0
-        if i >= n:
-            if PRINT_BOARD:
-                board = np.full((n, n), False, dtype=bool)
-                for i in range(n):
-                    put_queen(board, i, queens[i]-1, n)
-                    pp_board(board)
-            count += 1
-        else:
-            for index, val in enumerate(possible):
-                queens[i] = val
-                if cond(queens, i):
-                    count += level(queens, possible[:index]+possible[index+1:], i+1, n)
-        return count
-    return level([0]*n, tuple(range(1, n+1)), 0, n)
+    '''perm_op3 with jit on core functions, jit on this one slows it down'''
+    return level_op4(np.zeros(n), np.arange(1, n+1), 0, n)
 
 def perm_op1(n, board=None, level=0):
     '''basic permutation with optimization'''
@@ -210,6 +205,6 @@ def perm_all(n):
 
 
 if __name__ == '__main__':
-    #main()
-    prof()
+    main()
+    #prof()
 
