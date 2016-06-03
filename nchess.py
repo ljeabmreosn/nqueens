@@ -7,7 +7,7 @@ import timeit
 from sys import argv
 import numpy as np
 from colorama import init, Fore
-from numba import jit
+from numba import jit, intc
 
 PRINT_BOARD = False
 
@@ -51,10 +51,9 @@ def main():
         print('nchess.py, usage:\nn print repeat functions')
         return
     if len(argv) > 2:
-        global PRINT_BOARD
-        PRINT_BOARD = bool(int(argv[2]))
+        print_sol = bool(int(argv[2]))
 
-    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
+    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4, perm_op5]
     if len(argv) > 3:
         repeats = int(argv[3])
     else:
@@ -64,9 +63,14 @@ def main():
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            print(min(timeit.repeat('{}({})'.format(funcstr, n),
-                                    setup='from __main__ import '+funcstr,
-                                    repeat=repeats, number=1)))
+            if print_sol:
+                print(min(timeit.repeat('print({}({}))'.format(funcstr, n),
+                                        setup='from __main__ import '+funcstr,
+                                        repeat=repeats, number=1)))
+            else:
+                print(min(timeit.repeat('{}({})'.format(funcstr, n),
+                                        setup='from __main__ import '+funcstr,
+                                        repeat=repeats, number=1)))
     else:
         print(function(n) for function in functions[1:])
 
@@ -80,18 +84,20 @@ def prof():
         print('nchess.py, usage:\nn print repeat functions')
         return
     if len(argv) > 2:
-        global PRINT_BOARD
-        PRINT_BOARD = bool(int(argv[2]))
+        print_sol = bool(int(argv[2]))
 
-    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4]
+    functions = [perm_all, perm_op1, perm_op2, perm_op3, perm_op4, perm_op5]
     if len(argv) > 4:
         for func in argv[4:]:
             print()
             funcstr = str(functions[int(func)]).split(' ')[1]
             print(funcstr)
-            #cProfile.runctx('print('+funcstr + '({}))'.format(n), globals(), locals(),
-            #                filename='nchess.prof', sort='time')
-            cProfile.run('print('+funcstr+'({}))'.format(n), sort='time')
+            cProfile.runctx('print({}({}))'.format(funcstr, n), globals(), locals(),
+                            filename='nchess.prof', sort='time')
+            if print_sol:
+                cProfile.run('print({}({}))'.format(funcstr, n), sort='time')
+            else:
+                cProfile.run('{}({})'.format(funcstr, n), sort='time')
     else:
         print(function(n) for function in functions[1:])
 
@@ -146,6 +152,34 @@ def level_op4(queens, possible, i, n):
 def perm_op4(n):
     '''perm_op3 with jit on core functions, jit on this one slows it down'''
     return level_op4(np.zeros(n), np.arange(1, n+1), 0, n)
+
+@jit(nopython=True)
+def cond_op5(queens, i):
+    '''checks board validity'''
+    for level in range(i):
+        if abs(queens[i]-queens[level]) == i-level:
+            return False
+    return True
+
+@jit(intc(intc[:], intc[:], intc, intc), locals=globals(), nopython=True)
+def level_op5(queens, not_possible, i, n):
+    '''places queens'''
+    count = 0
+    if i >= n:
+        count += 1
+    else:
+        for val in range(n):
+            if val in not_possible[:i]:
+                continue
+            queens[i] = val
+            if cond_op5(queens, i):
+                not_possible[i] = val
+                count += level_op5(queens, not_possible, i+1, n)
+    return count
+
+def perm_op5(n):
+    '''perm_op3 with jit on core functions, jit on this one slows it down'''
+    return level_op5(np.zeros(n), np.arange(1, n+1), 0, n)
 
 def perm_op1(n, board=None, level=0):
     '''basic permutation with optimization'''
